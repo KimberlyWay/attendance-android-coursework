@@ -35,7 +35,10 @@ jobs:
           profile: pixel_2
           disable-animations: true
           script: |
-            gradle --no-daemon connectedDebugAndroidTest
+            adb install -r app/build/outputs/apk/debug/app-debug.apk
+            adb install -r app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk
+            adb shell am instrument -w ru.student.attendance.test/androidx.test.runner.AndroidJUnitRunner | tee instrumentation.txt
+            grep -q "OK (2 tests)" instrumentation.txt
             adb pull /sdcard/Android/data/ru.student.attendance/files/screenshots screenshots
       - uses: actions/upload-artifact@v4
         if: always()
@@ -43,5 +46,6 @@ jobs:
           name: verification
           path: |
             screenshots
+            instrumentation.txt
             app/build/reports/androidTests
             app/build/outputs/androidTest-results
